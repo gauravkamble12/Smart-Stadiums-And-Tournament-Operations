@@ -75,12 +75,12 @@ export const ExecutiveDashboard: React.FC = () => {
                     <InteractiveStadium />
                 </div>
 
-                {/* Proactive Feed */}
-                <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-                    <div className="card glass-panel" style={{display: 'flex', flexDirection: 'column', flex: 1, maxHeight: '350px'}}>
-                        <h3 style={{marginBottom: '1rem'}}><i className="fa-solid fa-bell"></i> Proactive AI Feed</h3>
-                        <div style={{flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                            {alerts.length === 0 ? (
+        {/* Proactive Feed */}
+        <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+            <div className="card glass-panel" style={{display: 'flex', flexDirection: 'column', flex: 1, maxHeight: '350px'}}>
+                <h3 style={{marginBottom: '1rem'}}><i className="fa-solid fa-bell"></i> Proactive AI Feed</h3>
+                <div aria-live="polite" style={{flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                    {alerts.length === 0 ? (
                                 <div className="text-sm">Listening to swarm agents...</div>
                             ) : (
                                 alerts.map(alert => (

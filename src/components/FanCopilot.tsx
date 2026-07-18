@@ -60,7 +60,7 @@ export const FanCopilot: React.FC<{ isSosActive: boolean }> = ({ isSosActive }) 
             </header>
 
             <div className="chat-container glass-panel" style={{flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
-                <div className="chat-history" style={{flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+                <div className="chat-history" aria-live="polite" style={{flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
                     {messages.map((m, idx) => (
                         <div key={idx} style={{
                             display: 'flex', gap: '1rem', 
@@ -116,6 +116,7 @@ export const FanCopilot: React.FC<{ isSosActive: boolean }> = ({ isSosActive }) 
                         onClick={simulateVisionUpload} 
                         className="secondary-btn" 
                         title="Simulate Multimodal Image Upload"
+                        aria-label="Upload Image"
                         style={{padding: '0.75rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', cursor: 'pointer', color: 'white'}}
                     >
                         <i className="fa-solid fa-camera"></i>
@@ -126,15 +127,16 @@ export const FanCopilot: React.FC<{ isSosActive: boolean }> = ({ isSosActive }) 
                         onChange={e => setInput(e.target.value)}
                         onKeyPress={e => e.key === 'Enter' && handleSend()}
                         placeholder="Ask anything or upload a photo..."
+                        aria-label="Ask anything or upload a photo"
                         style={{flex: 1, padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)', color: 'white'}}
                     />
-                    <select value={language} onChange={e => setLanguage(e.target.value)} className="lang-dropdown" style={{padding: '0.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'white'}}>
+                    <select value={language} onChange={e => setLanguage(e.target.value)} className="lang-dropdown" aria-label="Select Language" style={{padding: '0.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'white'}}>
                         <option value="English">EN</option>
                         <option value="Spanish">ES</option>
                         <option value="French">FR</option>
                         <option value="Arabic">AR</option>
                     </select>
-                    <button onClick={handleSend} disabled={isCoolingDown} className="primary-btn">
+                    <button onClick={handleSend} disabled={isCoolingDown} className="primary-btn" aria-label="Send Message">
                         {isCoolingDown ? <i className="fa-solid fa-hourglass fa-spin"></i> : <i className="fa-solid fa-paper-plane"></i>}
                     </button>
                 </div>
