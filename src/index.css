@@ -1,0 +1,241 @@
+:root {
+  --bg-primary: #050810;
+  --bg-secondary: #0F172A;
+  --accent-primary: #3B82F6;
+  --accent-secondary: #10B981;
+  --accent-gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(59, 130, 246, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-primary);
+  background-image: 
+      radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.text-warning { color: var(--warning); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-sm { font-size: 0.85rem; color: var(--text-secondary); }
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+}
+
+.card {
+  padding: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 320px;
+  background: rgba(5, 8, 16, 0.9);
+  border-right: 1px solid var(--glass-border);
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+.logo i { color: var(--accent-primary); font-size: 1.8rem; }
+
+.nav-section-title {
+  padding: 0 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.nav-links li {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+.nav-links li:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); transform: translateX(4px); }
+.nav-links li.active {
+  color: var(--text-primary);
+  background: var(--accent-gradient);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+body.sos-active {
+    background-image: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.2) 0%, transparent 70%);
+}
+
+/* Custom Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(5, 8, 16, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.6);
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes blink-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* UI Classes */
+.slide-in {
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pulse-active {
+  animation: pulse-glow 2s infinite;
+}
+
+.blink-warning {
+  animation: blink-slow 2s infinite;
+}
+
+/* Premium Card hover effects */
+.glass-panel {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.glass-panel:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Primary Button glow & hover */
+.primary-btn {
+  background: var(--accent-gradient) !important;
+  border: none !important;
+  color: white !important;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5) !important;
+}
+.primary-btn:active {
+  transform: translateY(1px);
+}
+
+.secondary-btn {
+  transition: all 0.3s ease !important;
+}
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Custom styles for terminal logs */
+.terminal-line {
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+  transition: background-color 0.2s ease;
+}
+.terminal-line:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-left-color: var(--accent-primary);
+}
+

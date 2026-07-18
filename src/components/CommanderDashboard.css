@@ -1,0 +1,83 @@
+.commander-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.last-updated {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.sync-btn {
+    background: transparent;
+    border: 1px solid var(--accent-primary);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+.sync-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.card {
+    padding: 1.5rem;
+}
+.card h3 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+
+.exec-summary { grid-column: 1 / -1; font-size: 1.2rem; line-height: 1.5; border-left: 4px solid var(--accent-primary); }
+.recommendations { grid-column: span 2; }
+.reasoning { grid-column: 1 / -1; }
+
+.risk-value, .confidence-value {
+    font-size: 3rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+}
+.text-danger { color: var(--danger); }
+.fw-bold { font-weight: 800; }
+
+.recommendations ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.recommendations li {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+.recommendations li i {
+    color: var(--warning);
+    margin-top: 4px;
+}
