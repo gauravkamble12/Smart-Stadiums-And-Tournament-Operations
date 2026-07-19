@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { aiService } from '../services/aiService';
 import type { Message } from '../types';
+import DOMPurify from 'dompurify';
 
 export const FanCopilot: React.FC<{ isSosActive: boolean }> = ({ isSosActive }) => {
     const [messages, setMessages] = useState<Message[]>([
@@ -19,7 +20,7 @@ export const FanCopilot: React.FC<{ isSosActive: boolean }> = ({ isSosActive }) 
         setIsCoolingDown(true);
         setTimeout(() => setIsCoolingDown(false), 3000);
 
-        const userMsg = input;
+        const userMsg = DOMPurify.sanitize(input);
         const newMsg: Message = { id: Date.now().toString(), sender: 'user', text: userMsg };
         setMessages(prev => [...prev, newMsg]);
         setInput('');
@@ -29,14 +30,19 @@ export const FanCopilot: React.FC<{ isSosActive: boolean }> = ({ isSosActive }) 
         const history = messages.map(m => `${m.sender.toUpperCase()}: ${m.text}`).join('\n');
 
         const aiResponse = await aiService.generateFanResponse(userMsg, language, agent, isSosActive, history);
+        const cleanAiResponse = DOMPurify.sanitize(aiResponse);
         
-        const aiMsg: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: aiResponse };
-        setMessages(prev => [...prev, aiMsg]);
+        setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            sender: 'ai',
+            text: cleanAiResponse
+        }]);
         setLoading(false);
     };
 
-    const simulateVisionUpload = () => {
-        setInput("[IMAGE UPLOADED: gate_b_crowd.jpg] Where am I and how do I get out?");
+    const simulateVisionUpload = async () => {
+        const fakeImageMsg: Message = { id: Date.now().toString(), sender: 'user', text: "[IMAGE UPLOADED: gate_b_crowd.jpg] - Analyze congestion here." };
+        setMessages(prev => [...prev, fakeImageMsg]);
     };
 
     return (

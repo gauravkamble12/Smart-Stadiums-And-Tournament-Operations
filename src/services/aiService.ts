@@ -221,7 +221,11 @@ class AIService {
                 timestamp: new Date()
             }));
         } catch {
-            return [];
+            console.warn("Gemini API failed or quota exceeded. Falling back to mock proactive alerts.");
+            return this.mockDelay([
+                { id: Math.random().toString(), severity: 'warning', message: 'Rain cell approaching from the North. Roof closure recommended.', timestamp: new Date(), agentSource: 'Weather Agent' },
+                { id: Math.random().toString(), severity: 'critical', message: 'Gate C turnstile malfunction causing 15min delay.', timestamp: new Date(), agentSource: 'Security Agent' }
+            ]);
         }
     }
 
@@ -262,7 +266,11 @@ class AIService {
             const response = await this.callGeminiAPI(context, "Evaluate accessible routes.");
             return JSON.parse(response.replace(/```json/g, '').replace(/```/g, '').trim()) as AccessibilityRoute[];
         } catch {
-            return [];
+            console.warn("Gemini API failed or quota exceeded. Falling back to mock accessibility routes.");
+            return this.mockDelay([
+                { id: "Route A-12", userNeeds: ["Wheelchair"], currentRouteStatus: "Elevator Down", aiSuggestion: "Reroute via West Concourse ramp.", estimatedTimeMins: 8 },
+                { id: "Route B-04", userNeeds: ["Visual Assistance"], currentRouteStatus: "Obstructed", aiSuggestion: "Activate audio beacons for detoured Path C.", estimatedTimeMins: 5 }
+            ]);
         }
     }
 
@@ -293,7 +301,16 @@ class AIService {
             const response = await this.callGeminiAPI(context, `Generate 3D POI map for ${stadiumName}`);
             return JSON.parse(response.replace(/```json/g, '').replace(/```/g, '').trim()) as StadiumPOI[];
         } catch {
-            return [];
+            console.warn("Gemini API failed or quota exceeded. Falling back to mock POIs.");
+            const modifier = stadiumName.length % 2 === 0 ? 1 : -1;
+            return this.mockDelay([
+                { id: "p1", name: `${stadiumName} North Gate`, type: "Entry", position: [0, 2, -10 * modifier] },
+                { id: "p2", name: "Main Concourse Canteen", type: "Canteen", position: [8, 3, 5] },
+                { id: "p3", name: "Sector 112 Washrooms", type: "Washroom", position: [-7, 2, -6] },
+                { id: "p4", name: "VIP Seating Deck", type: "Seating", position: [0, 4.5, 8 * modifier] },
+                { id: "p5", name: "South Exit", type: "Exit", position: [0, 0, 10 * modifier] },
+                { id: "p6", name: "First Aid Station Alpha", type: "Medical", position: [-9, 1, 0] }
+            ]);
         }
     }
 

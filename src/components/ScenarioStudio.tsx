@@ -75,8 +75,9 @@ export const ScenarioStudio: React.FC = () => {
                 {PRESET_SCENARIOS.map(sc => (
                     <button 
                         key={sc.id} 
-                        onClick={() => runScenario(sc.prompt)}
+                        onClick={() => runScenario(sc.prompt, 1)}
                         className="card glass-panel"
+                        aria-pressed={activeScenario === sc.prompt}
                         style={{
                             textAlign: 'left', 
                             cursor: 'pointer', 
@@ -100,11 +101,13 @@ export const ScenarioStudio: React.FC = () => {
             )}
 
             {simulation && !loading && (
-                <div className="simulation-results slide-up">
+                <div className="simulation-results slide-up" aria-live="assertive">
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
                         <h3><i className="fa-solid fa-file-waveform"></i> Simulation Report</h3>
                         <button 
                             onClick={() => setShowRawJson(!showRawJson)} 
+                            aria-label={showRawJson ? "Hide Raw JSON Output" : "Show Raw JSON Output"}
+                            aria-expanded={showRawJson}
                             style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem'}}
                         >
                             <i className="fa-solid fa-code"></i> {showRawJson ? 'Hide' : 'Show'} Raw JSON Output
