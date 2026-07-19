@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { liveTelemetry } from '../data/TelemetryGenerator';
+import { useTelemetry } from '../context/TelemetryContext';
 
 interface AgentConfig {
     name: string;
@@ -68,23 +68,7 @@ const AGENTS: AgentConfig[] = [
     }
 ];
 
-const LOG_TEMPLATES = [
-    { agent: 'Crowd Agent', text: 'Scanning gate cameras... north gate density is at 38%' },
-    { agent: 'Crowd Agent', text: 'Sector 100 density optimal. Flow rate: 120 fans/min' },
-    { agent: 'Crowd Agent', text: 'Warning: South gate density rising. Flow rate: 240 fans/min' },
-    { agent: 'Transport Agent', text: 'Querying Metro South API... Status: Nominal (4m delays)' },
-    { agent: 'Transport Agent', text: 'Uber rideshare north waiting list: 12 passengers' },
-    { agent: 'Transport Agent', text: 'Escalation: South station delay increased to 10 mins. Suggesting rail backup' },
-    { agent: 'Weather Agent', text: 'Querying local weather radar... Temp: 74F, Humidity: 55%' },
-    { agent: 'Weather Agent', text: 'Clear sky radar confirmation. Roof open recommendation.' },
-    { agent: 'Weather Agent', text: 'Small moisture cell detected 12 miles North. Monitoring movement.' },
-    { agent: 'Security Agent', text: 'Turnstiles online: 24/24. RFID scanners checking: 100% success rate' },
-    { agent: 'Security Agent', text: 'CCTV validation: Perimeter fencing Sector B secure.' },
-    { agent: 'Security Agent', text: 'Incident: VIP gate access flow sluggish. Dispatching hosts.' },
-    { agent: 'Medical Agent', text: 'First Aid Alpha status: Available. 0 active patients.' },
-    { agent: 'Medical Agent', text: 'Telemetry check: Ambient concourse temp 72F (Within safe bounds).' },
-    { agent: 'Medical Agent', text: 'Team status: Paramedics standing by near Sector 112.' }
-];
+
 
 interface GraphNode {
     id: string;
@@ -125,46 +109,11 @@ const GRAPH_LINKS = [
 ];
 
 export const ArchitectureViewer: React.FC = () => {
-    const [logs, setLogs] = useState<{ id: string; timestamp: string; agent: string; message: string }[]>([]);
+    const { logs, sensors: telemetry } = useTelemetry();
     const [selectedAgentFilter, setSelectedAgentFilter] = useState<string>('All');
     const [activeConfig, setActiveConfig] = useState<AgentConfig | null>(AGENTS[0]);
-    const [telemetry, setTelemetry] = useState<any[]>([]);
     const [hoveredNode, setHoveredNode] = useState<string | null>(null);
     const terminalEndRef = useRef<HTMLDivElement>(null);
-
-    // Populate initial logs & telemetry
-    useEffect(() => {
-        setTelemetry(liveTelemetry.getRawData());
-        
-        const initialLogs = Array.from({ length: 8 }).map((_, idx) => {
-            const temp = LOG_TEMPLATES[Math.floor(Math.random() * LOG_TEMPLATES.length)];
-            const time = new Date(Date.now() - (8 - idx) * 15000);
-            return {
-                id: Math.random().toString(),
-                timestamp: time.toLocaleTimeString(),
-                agent: temp.agent,
-                message: temp.text
-            };
-        });
-        setLogs(initialLogs);
-    }, []);
-
-    // Live log & telemetry polling simulator
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const temp = LOG_TEMPLATES[Math.floor(Math.random() * LOG_TEMPLATES.length)];
-            const newLog = {
-                id: Math.random().toString(),
-                timestamp: new Date().toLocaleTimeString(),
-                agent: temp.agent,
-                message: temp.text
-            };
-            setLogs(prev => [...prev.slice(-25), newLog]);
-            setTelemetry(liveTelemetry.getRawData());
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         if (terminalEndRef.current) {

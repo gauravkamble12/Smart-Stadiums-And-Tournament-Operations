@@ -1,9 +1,9 @@
 services:
   - type: web
     name: arenamind-ai
-    env: static
+    env: node
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    startCommand: npm start
     envVars:
-      - key: VITE_GEMINI_API_KEY
+      - key: GEMINI_API_KEY
         sync: false

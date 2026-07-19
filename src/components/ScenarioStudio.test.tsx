@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { ScenarioStudio } from './ScenarioStudio';
 import { aiService } from '../services/aiService';
 
@@ -14,7 +14,7 @@ global.ResizeObserver = ResizeObserverMock;
 
 vi.mock('../services/aiService', () => ({
     aiService: {
-        simulateDecision: vi.fn().mockResolvedValue({
+        simulateDecision: vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({
             recommendation: 'Mock recommendation',
             reasoning: 'Mock reasoning',
             evidence: [],
@@ -27,21 +27,28 @@ vi.mock('../services/aiService', () => ({
             affectedPeople: 100,
             recoveryStrategy: 'None',
             estimatedCarbonReductionKg: 0
-        })
+        }), 100)))
     }
 }));
 
 describe('ScenarioStudio Component', () => {
-    it('renders scenario buttons', () => {
-        render(<ScenarioStudio />);
+    it('renders scenario buttons', async () => {
+        await act(async () => {
+            render(<ScenarioStudio />);
+        });
         expect(screen.getByText('Torrential Rain Downpour')).toBeInTheDocument();
         expect(screen.getByText('South Gate Power Outage')).toBeInTheDocument();
     });
 
     it('displays loading state and runs scenario on click', async () => {
-        render(<ScenarioStudio />);
+        await act(async () => {
+            render(<ScenarioStudio />);
+        });
         const btn = screen.getByText('Torrential Rain Downpour');
-        fireEvent.click(btn);
+        
+        await act(async () => {
+            fireEvent.click(btn);
+        });
         
         await waitFor(() => {
             expect(screen.getByText(/Running Multimodal Scenario Simulation.../i)).toBeInTheDocument();

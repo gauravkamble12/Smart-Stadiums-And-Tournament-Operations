@@ -8,38 +8,48 @@ export const CommanderDashboard: React.FC = () => {
     const [summary, setSummary] = useState<AICommanderSummary | null>(null);
     const [loading, setLoading] = useState(false);
     const [showRawJson, setShowRawJson] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const syncWithSwarm = async () => {
         setLoading(true);
-        // Pull raw data dynamically from the telemetry generator
-        const rawSensors = liveTelemetry.getRawData();
-        const gateCongestion: Record<string, 'Low' | 'Medium' | 'High' | 'Critical'> = {};
-        
-        rawSensors.forEach(sensor => {
-            if (sensor.metricType === 'Density') {
-                const val = sensor.value as number;
-                let lvl: 'Low' | 'Medium' | 'High' | 'Critical' = 'Low';
-                if (val > 80) lvl = 'Critical';
-                else if (val > 60) lvl = 'High';
-                else if (val > 40) lvl = 'Medium';
-                
-                if (sensor.nodeId === 'g_north') gateCongestion['North Main Gate'] = lvl;
-                if (sensor.nodeId === 'g_south') gateCongestion['South Gate'] = lvl;
-                if (sensor.nodeId === 'g_east') gateCongestion['East VIP Gate'] = lvl;
+        setError(null);
+        try {
+            // Pull raw data dynamically from the telemetry generator
+            const rawSensors = liveTelemetry.getRawData();
+            const gateCongestion: Record<string, 'Low' | 'Medium' | 'High' | 'Critical'> = {};
+            
+            rawSensors.forEach(sensor => {
+                if (sensor.metricType === 'Density') {
+                    const val = sensor.value as number;
+                    let lvl: 'Low' | 'Medium' | 'High' | 'Critical' = 'Low';
+                    if (val > 80) lvl = 'Critical';
+                    else if (val > 60) lvl = 'High';
+                    else if (val > 40) lvl = 'Medium';
+                    
+                    if (sensor.nodeId === 'g_north') gateCongestion['North Main Gate'] = lvl;
+                    if (sensor.nodeId === 'g_south') gateCongestion['South Gate'] = lvl;
+                    if (sensor.nodeId === 'g_east') gateCongestion['East VIP Gate'] = lvl;
+                }
+            });
+
+            const rawTelemetry: TelemetryData = {
+                totalAttendance: 68450 + Math.floor(Math.random() * 500),
+                weather: 'Clear',
+                gateCongestion,
+                incidents: []
+            };
+            setTelemetry(rawTelemetry);
+
+            const aiSummary = await aiService.generateCommanderSummary(rawTelemetry);
+            if (!aiSummary) {
+                throw new Error("Unable to synthesize swarm summary from live telemetry. Check API key status.");
             }
-        });
-
-        const rawTelemetry: TelemetryData = {
-            totalAttendance: 68450 + Math.floor(Math.random() * 500),
-            weather: 'Clear',
-            gateCongestion,
-            incidents: []
-        };
-        setTelemetry(rawTelemetry);
-
-        const aiSummary = await aiService.generateCommanderSummary(rawTelemetry);
-        setSummary(aiSummary);
-        setLoading(false);
+            setSummary(aiSummary);
+        } catch (err: any) {
+            setError(err?.message || "An unexpected error occurred while syncing with the Swarm.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const [timeToNextSync, setTimeToNextSync] = useState(60);
@@ -80,7 +90,39 @@ export const CommanderDashboard: React.FC = () => {
                 </div>
             </header>
 
-            {summary ? (
+            {error && summary && (
+                <div style={{
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid var(--danger)',
+                    color: '#EF4444',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '8px',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.9rem'
+                }}>
+                    <span><i className="fa-solid fa-triangle-exclamation"></i> Sync Warning: {error} (Displaying stale summary data)</span>
+                    <button 
+                        onClick={() => { syncWithSwarm(); setTimeToNextSync(60); }}
+                        style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }}
+                    >
+                        Retry Sync
+                    </button>
+                </div>
+            )}
+
+            {error && !summary ? (
+                <div className="loading-state" style={{ color: 'var(--danger)', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '3rem' }}>
+                    <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: '2.5rem' }}></i>
+                    <h3>Commander AI Sync Failed</h3>
+                    <p style={{ maxWidth: '450px', margin: '0 auto', fontSize: '0.9rem', opacity: 0.8 }}>{error}</p>
+                    <button onClick={() => { syncWithSwarm(); setTimeToNextSync(60); }} className="sync-btn" style={{ margin: '0 auto' }}>
+                        <i className="fa-solid fa-arrows-rotate"></i> Retry Sync
+                    </button>
+                </div>
+            ) : summary ? (
                 showRawJson ? (
                     <div style={{marginTop: '2rem', padding: '1.5rem', background: '#1e1e1e', borderRadius: '8px'}}>
                         <pre style={{color: '#d4d4d4', overflowX: 'auto', fontSize: '0.9rem'}}>

@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { aiService } from '../services/aiService';
-import type { ProactiveAlert, DashboardKPIs, AccessibilityRoute } from '../types';
+import type { ProactiveAlert, AccessibilityRoute } from '../types';
 import { InteractiveStadium } from './InteractiveStadium';
-import { liveTelemetry } from '../data/TelemetryGenerator';
+import { useTelemetry } from '../context/TelemetryContext';
 
 export const ExecutiveDashboard: React.FC = () => {
+    const { kpis } = useTelemetry();
     const [alerts, setAlerts] = useState<ProactiveAlert[]>([]);
     const [routes, setRoutes] = useState<AccessibilityRoute[]>([]);
-    const [kpis, setKpis] = useState<DashboardKPIs>({
-        totalAttendance: 74205,
-        carbonSavedKg: liveTelemetry.getCarbonSaved(),
-        activeIncidents: 2,
-        avgTransportDelayMins: 4
-    });
 
     useEffect(() => {
         const fetchAlerts = async () => {
@@ -23,15 +18,8 @@ export const ExecutiveDashboard: React.FC = () => {
         };
         fetchAlerts();
         
-        // Simulating live data changes
-        const interval = setInterval(() => {
-            setKpis(prev => ({
-                ...prev,
-                totalAttendance: prev.totalAttendance + Math.floor(Math.random() * 5),
-                carbonSavedKg: liveTelemetry.getCarbonSaved()
-            }));
-            if (Math.random() > 0.7) fetchAlerts();
-        }, 15000);
+        // Poll alerts every 30 seconds
+        const interval = setInterval(fetchAlerts, 30000);
 
         return () => clearInterval(interval);
     }, []);

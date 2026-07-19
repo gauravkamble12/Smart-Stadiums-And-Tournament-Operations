@@ -1,20 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { aiService } from '../services/aiService';
 import { liveTelemetry } from '../data/TelemetryGenerator';
 import { GroundingKnowledgeGraph } from '../data/KnowledgeGraph';
+import { useTelemetry } from '../context/TelemetryContext';
 
 export const Settings: React.FC = () => {
+    const { sensors, refreshTelemetry, setEmergency } = useTelemetry();
     const [key, setKey] = useState(aiService.getApiKey() || '');
     const [saved, setSaved] = useState(false);
-    const [sensors, setSensors] = useState<any[]>([]);
-
-    useEffect(() => {
-        setSensors(liveTelemetry.getRawData());
-        const interval = setInterval(() => {
-            setSensors(liveTelemetry.getRawData());
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
 
     const handleSave = () => {
         if (key.trim()) {
@@ -29,7 +22,7 @@ export const Settings: React.FC = () => {
 
     const handleSensorChange = (nodeId: string, metricType: string, val: number) => {
         liveTelemetry.setSensorValue(nodeId, metricType, val);
-        setSensors(liveTelemetry.getRawData());
+        refreshTelemetry();
     };
 
     const triggerIncidentPreset = (type: 'rain' | 'blackout' | 'reset') => {
@@ -44,9 +37,9 @@ export const Settings: React.FC = () => {
             liveTelemetry.setSensorValue('g_south', 'Density', 95);
             liveTelemetry.setSensorValue('t_metro_south', 'WaitTime', 30);
         } else if (type === 'reset') {
-            liveTelemetry.setIsEmergency(false);
+            setEmergency(false);
         }
-        setSensors(liveTelemetry.getRawData());
+        refreshTelemetry();
     };
 
     const getNodeName = (nodeId: string) => {

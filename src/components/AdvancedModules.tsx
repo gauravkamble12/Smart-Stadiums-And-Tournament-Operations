@@ -6,16 +6,26 @@ export const AdvancedModules: React.FC = () => {
     const [emotion, setEmotion] = useState<EmotionData | null>(null);
     const [routes, setRoutes] = useState<AccessibilityRoute[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const syncModules = async () => {
         setLoading(true);
-        const [emoData, routeData] = await Promise.all([
-            aiService.generateEmotionAnalysis(),
-            aiService.checkAccessibilityRoutes()
-        ]);
-        setEmotion(emoData);
-        setRoutes(routeData);
-        setLoading(false);
+        setError(null);
+        try {
+            const [emoData, routeData] = await Promise.all([
+                aiService.generateEmotionAnalysis(),
+                aiService.checkAccessibilityRoutes()
+            ]);
+            if (!emoData || !routeData || emoData.trendingSentiment === "Unavailable") {
+                throw new Error("Telemetry analysis failed to generate. Check system connection or API key.");
+            }
+            setEmotion(emoData);
+            setRoutes(routeData);
+        } catch (err: any) {
+            setError(err?.message || "Failed to sync advanced telemetry modules.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -33,8 +43,39 @@ export const AdvancedModules: React.FC = () => {
 
             {loading && !emotion ? (
                 <div className="loading-state">Analyzing sentiment and accessibility telemetry...</div>
+            ) : error && !emotion ? (
+                <div className="loading-state" style={{ color: 'var(--danger)', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '3rem' }}>
+                    <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: '2.5rem' }}></i>
+                    <h3>Advanced Modules Sync Failed</h3>
+                    <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>{error}</p>
+                    <button onClick={syncModules} className="sync-btn" style={{ margin: '0 auto' }}>
+                        Retry Sync
+                    </button>
+                </div>
             ) : (
                 <>
+                    {error && (
+                        <div style={{
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            border: '1px solid var(--danger)',
+                            color: '#EF4444',
+                            padding: '0.75rem 1rem',
+                            borderRadius: '8px',
+                            marginBottom: '1.5rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            fontSize: '0.9rem'
+                        }}>
+                            <span><i className="fa-solid fa-triangle-exclamation"></i> Sync Warning: {error} (Displaying local telemetry fallback)</span>
+                            <button 
+                                onClick={syncModules}
+                                style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }}
+                            >
+                                Retry Sync
+                            </button>
+                        </div>
+                    )}
                     {/* Emotion AI */}
                     <div className="module-section">
                         <h3 style={{marginBottom: '1rem', color: 'var(--text-secondary)'}}><i className="fa-solid fa-face-smile-beam"></i> Emotion AI Sentiment Analysis</h3>

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { FanCopilot } from './FanCopilot';
 
@@ -8,13 +8,17 @@ describe('FanCopilot Component', () => {
         expect(screen.getByText(/Hello! I'm your ArenaMind Copilot/i)).toBeInTheDocument();
     });
 
-    it('handles user input and displays user message', () => {
-        render(<FanCopilot isSosActive={false} />);
+    it('handles user input and displays user message', async () => {
+        await act(async () => {
+            render(<FanCopilot isSosActive={false} />);
+        });
         const input = screen.getByPlaceholderText(/Ask anything/i);
         const sendBtn = screen.getByRole('button', { name: /send message/i });
 
-        fireEvent.change(input, { target: { value: 'Where is the nearest exit?' } });
-        fireEvent.click(sendBtn);
+        await act(async () => {
+            fireEvent.change(input, { target: { value: 'Where is the nearest exit?' } });
+            fireEvent.click(sendBtn);
+        });
 
         expect(screen.getByText('Where is the nearest exit?')).toBeInTheDocument();
     });

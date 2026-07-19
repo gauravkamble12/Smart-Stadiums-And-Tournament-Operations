@@ -7,6 +7,7 @@ export const StadiumTimeMachine: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [prediction, setPrediction] = useState<TimeMachinePrediction | null>(null);
     const [loading, setLoading] = useState(false);
+    const [timeMachineError, setTimeMachineError] = useState<string | null>(null);
     const playIntervalRef = useRef<number | null>(null);
 
     // Dynamic metrics calculated in real-time based on slider position
@@ -55,10 +56,20 @@ export const StadiumTimeMachine: React.FC = () => {
     // Fetch AI detailed reasoning briefing from Gemini for the chosen timeframe
     const fetchAIBriefing = async (minutes: number) => {
         setLoading(true);
-        const tfString = `${minutes}m`;
-        const res = await aiService.generateTimeMachinePrediction(tfString as any);
-        setPrediction(res);
-        setLoading(false);
+        setTimeMachineError(null);
+        try {
+            const tfString = `${minutes}m`;
+            const res = await aiService.generateTimeMachinePrediction(tfString as any);
+            if (!res || res.crowdState === "Prediction unavailable.") {
+                throw new Error("Unable to synthesize temporal prediction from live telemetry. Check API configuration.");
+            }
+            setPrediction(res);
+        } catch (err: any) {
+            setTimeMachineError(err?.message || "Temporal prediction engine offline.");
+            setPrediction(null);
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Auto-fetch AI report when slider changes (debounced)
@@ -214,6 +225,14 @@ export const StadiumTimeMachine: React.FC = () => {
                         <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem'}}>
                             <i className="fa-solid fa-spinner fa-spin text-success" style={{fontSize: '1.5rem'}}></i>
                             <span>Querying temporal grounding model...</span>
+                        </div>
+                    ) : timeMachineError ? (
+                        <div style={{ background: 'rgba(239, 68, 68, 0.1)', borderLeft: '4px solid var(--danger)', padding: '1rem', borderRadius: '8px' }}>
+                            <strong className="text-danger"><i className="fa-solid fa-triangle-exclamation"></i> Forecast Failed</strong>
+                            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{timeMachineError}</p>
+                            <button onClick={() => fetchAIBriefing(timeVal)} className="secondary-btn" style={{ marginTop: '0.75rem', padding: '0.4rem 0.8rem', fontSize: '0.8rem', border: '1px solid var(--danger)', color: '#ef4444', borderRadius: '4px', background: 'transparent', cursor: 'pointer' }}>
+                                <i className="fa-solid fa-arrows-rotate"></i> Retry Forecast Briefing
+                            </button>
                         </div>
                     ) : prediction ? (
                         <div style={{background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)'}}>
